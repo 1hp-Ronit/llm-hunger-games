@@ -1,8 +1,10 @@
 from ollama import AsyncClient
 import os
 import asyncio
-from data.questions import QUESTIONS
-from data.personalities import PERSONALITIES
+from backend.data.personalities import PERSONALITIES
+
+from dotenv import load_dotenv
+load_dotenv()
 
 client = AsyncClient(
     host="https://ollama.com",
