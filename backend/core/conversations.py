@@ -4,6 +4,7 @@ from ollama import AsyncClient
 import dotenv
 import os
 import json
+from backend.core.database import save_conversation
 
 dotenv.load_dotenv()
 
@@ -79,6 +80,99 @@ def match_pairs(requests):
 
     return matched_pairs
 
-# async def conduct_conversation(agent_a, agent_b, context):
-#     """multi-turn exchange between two agents. """
-    
+
+async def conduct_conversation(agent_a, agent_b, context):
+    """multi-turn exchange between two agents.
+    Call 1: Ask Agent A to open the conversation → get message_1
+    Call 2: Show Agent B what A said, ask B to reply → get message_2
+    Call 3: Ask Agent B to send another message → get message_3
+    Call 4: Show Agent A what B said, ask A to reply → get message_4
+    """
+    # For simplicity, we just do one round of exchange here
+    system_prompt_a = PERSONALITIES[agent_a]
+    system_prompt_b = PERSONALITIES[agent_b]
+
+    async def chat_with_retry(messages):
+        for attempt in range(3):
+            try:
+                return await client.chat("gpt-oss:120b", messages=messages)
+            except Exception as e:
+                if "429" in str(e):
+                    if attempt == 2:
+                        raise Exception("Conversation call failed after 3 attempts")
+                    await asyncio.sleep(2**attempt)
+                else:
+                    raise
+
+    # Agent A opens the conversation
+    messages_1 = [
+        {"role": "system", "content": system_prompt_a},
+        {
+            "role": "user",
+            "content": f"Here is some context: {context}. Start a private conversation with {agent_b}.",
+        },
+    ]
+    message_1 = await chat_with_retry(messages_1)
+
+    # Agent B replies to A
+    messages_2 = [
+        {"role": "system", "content": system_prompt_b},
+        {
+            "role": "user",
+            "content": f"{agent_a} wants to talk to you privately. They said:",
+        },
+        {"role": "assistant", "content": message_1.message.content},
+        {"role": "user", "content": f"Reply to {agent_a}."},
+    ]
+    message_2 = await chat_with_retry(messages_2)
+
+    messages_3 = [
+        {"role": "system", "content": system_prompt_b},
+        {
+            "role": "user",
+            "content": f"{agent_a} wants to talk to you privately. They said:",
+        },
+        {"role": "assistant", "content": message_1.message.content},
+        {"role": "user", "content": f"Reply to {agent_a}."},
+        {"role": "assistant", "content": message_2.message.content},
+        {
+            "role": "user",
+            "content": f"Continue the private conversation with {agent_a}.",
+        },
+    ]
+    message_3 = await chat_with_retry(messages_3)
+
+    messages_4 = [
+        {"role": "system", "content": system_prompt_a},
+        {
+            "role": "user",
+            "content": f"You started a private conversation with {agent_b}. You said:",
+        },
+        {"role": "assistant", "content": message_1.message.content},
+        {"role": "user", "content": f"{agent_b} replied:"},
+        {"role": "assistant", "content": message_2.message.content},
+        {"role": "user", "content": f"{agent_b} continued:"},
+        {"role": "assistant", "content": message_3.message.content},
+        {"role": "user", "content": f"Reply to {agent_b}."},
+    ]
+    message_4 = await chat_with_retry(messages_4)
+
+    transcript = [
+        {"agent": agent_a, "message": message_1.message.content},
+        {"agent": agent_b, "message": message_2.message.content},
+        {"agent": agent_b, "message": message_3.message.content},
+        {"agent": agent_a, "message": message_4.message.content},
+    ]
+
+
+    return transcript
+
+async def conduct_all_conversations(round_id, matched_pairs, context) -> list[tuple[str, str]]:
+    """ takes the matched pairs list and runs conduct_conversation for each pair, saving each transcript to the DB."""
+    conversations = []
+    for pair in matched_pairs:
+        agent_a, agent_b = pair
+        transcript = await conduct_conversation(agent_a, agent_b, context)
+        save_conversation(round_id, agent_a, agent_b, json.dumps(transcript))
+        conversations.append((agent_a, agent_b)) # so that game.py can pass this info for votin
+    return conversations
