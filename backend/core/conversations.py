@@ -109,7 +109,11 @@ async def conduct_conversation(agent_a, agent_b, context):
         {"role": "system", "content": system_prompt_a},
         {
             "role": "user",
-            "content": f"Here is some context: {context}. Start a private conversation with {agent_b}.",
+            "content": f"""You are in Round {context['round_number']} of the AI Hunger Games.
+                        The question was: '{context['question']}'
+                        You have chosen to speak privately with {agent_b} before voting.
+                        Use this conversation strategically — discuss answers, form alliances, or probe threats.
+                        Keep it brief and in character.""",
         },
     ]
     message_1 = await chat_with_retry(messages_1)
@@ -164,15 +168,19 @@ async def conduct_conversation(agent_a, agent_b, context):
         {"agent": agent_a, "message": message_4.message.content},
     ]
 
-
     return transcript
 
-async def conduct_all_conversations(round_id, matched_pairs, context) -> list[tuple[str, str]]:
-    """ takes the matched pairs list and runs conduct_conversation for each pair, saving each transcript to the DB."""
+
+async def conduct_all_conversations(
+    round_id, matched_pairs, context
+) -> list[tuple[str, str]]:
+    """takes the matched pairs list and runs conduct_conversation for each pair, saving each transcript to the DB."""
     conversations = []
     for pair in matched_pairs:
         agent_a, agent_b = pair
         transcript = await conduct_conversation(agent_a, agent_b, context)
         save_conversation(round_id, agent_a, agent_b, json.dumps(transcript))
-        conversations.append((agent_a, agent_b)) # so that game.py can pass this info for votin
+        conversations.append(
+            {"agent_a": agent_a, "agent_b": agent_b, "transcript": transcript}
+        )  # so that game.py can pass this info for voting
     return conversations
