@@ -1,15 +1,14 @@
-from ollama import Client
-import os
+from backend.core.database import init_db, save_game
+from backend.core.game import run_game
+import asyncio
 
-client = Client(
-    host="https://ollama.com",
-    headers={"Authorization": f"Bearer {os.environ.get('OLLAMA_API_KEY')}"},
-)
-
-messages = [
-    {"role": "user", "content": "What is the capital of India?"},
-]
-
-
-for part in client.chat("gpt-oss:120b", messages=messages, stream=True):
-    print(part["message"]["content"], end="", flush=True)
+if __name__ == "__main__":
+    print("Starting game...")
+    
+    init_db()
+    print("Database initialized.")
+    game_id = save_game()
+    print(f"Created game with id: {game_id}")
+    winner = asyncio.run(run_game(game_id))
+    
+    print(f"Winner: {winner}")

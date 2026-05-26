@@ -66,6 +66,8 @@ async def run_game(game_id: int):
     }
 
     while len(active_agents) > 1:
+        if round_number > len(QUESTIONS):
+            break  
         # 1. Pick a question for this round
         question = QUESTIONS[round_number - 1]
         # 2. Ask all active agents the question and get their answers
@@ -74,36 +76,53 @@ async def run_game(game_id: int):
         round_id = save_round(game_id, round_number, question)
         save_answers(round_id, answers)
         # 4. Private Conversation of any agent pair and save it to the db
+        # """Commenting out conversation part for now to speed up testing. Will add it back in later."""
+        # requests = await ask_all_conversations_request(active_agents)
+        # parsed_requests = [
+        #     {
+        #         "agent": r["agent"],
+        #         "talk_to": (parse_conversation_request(r["raw"]) or {}).get(
+        #             "talk_to", "none"
+        #         ),
+        #     }
+        #     for r in requests
+        # ]
+        # matched_pairs = match_pairs(parsed_requests)
 
-        requests = await ask_all_conversations_request(active_agents)
-        parsed_requests = [
-            {
-                "agent": r["agent"],
-                "talk_to": (parse_conversation_request(r["raw"]) or {}).get(
-                    "talk_to", "none"
-                ),
-            }
-            for r in requests
-        ]
-        matched_pairs = match_pairs(parsed_requests)
+        # context = {
+        #     "round_number": round_number,
+        #     "question": question,
+        #     "answers": answers,
+        #     "global_summary": global_summary,
+        #     "agent_memory": agent_memory,
+        # }
 
-        context = {
-            "round_number": round_number,
-            "question": question,
-            "answers": answers,
-            "global_summary": global_summary,
-            "agent_memory": agent_memory,
-        }
+        # conversations = await conduct_all_conversations(
+        #     round_id, matched_pairs, context
+        # )
 
-        conversations = await conduct_all_conversations(
-            round_id, matched_pairs, context
-        )
+        conversations = []
 
         # 5. Conduct voting among agents to eliminate one agent
-        raw_votes = await ask_all_votes(question, answers, conversations, active_agents, agent_memory, global_summary)
+        raw_votes = await ask_all_votes(
+            question,
+            answers,
+            conversations,
+            active_agents,
+            agent_memory,
+            global_summary,
+        )
         eliminated_agent, is_tie = find_eliminated_agent(raw_votes)
+        print(
+            f"Round {round_number}: eliminated={eliminated_agent}, is_tie={is_tie}, active={active_agents}"
+        )
         if is_tie:
-            pass
+            if len(active_agents) == 2:
+                import random
+                eliminated_agent = random.choice(active_agents)
+                active_agents.remove(eliminated_agent)
+            else:
+                pass  # jury vote later
         else:
             active_agents.remove(eliminated_agent)
         # 6. Update personal and global summary
