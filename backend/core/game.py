@@ -1,3 +1,5 @@
+import random
+
 from backend.core.conversations import (
     ask_all_conversations_request,
     conduct_all_conversations,
@@ -113,12 +115,11 @@ async def run_game(game_id: int):
             global_summary,
         )
         eliminated_agent, is_tie = find_eliminated_agent(raw_votes)
-        print(
-            f"Round {round_number}: eliminated={eliminated_agent}, is_tie={is_tie}, active={active_agents}"
-        )
+        # print(
+        #     f"Round {round_number}: eliminated={eliminated_agent}, is_tie={is_tie}, active={active_agents}"
+        # )
         if is_tie:
             if len(active_agents) == 2:
-                import random
                 eliminated_agent = random.choice(active_agents)
                 active_agents.remove(eliminated_agent)
             else:
