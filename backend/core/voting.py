@@ -19,8 +19,11 @@ async def ask_vote(
     question: str,
     all_answers: list[dict[str, str]],
     conversations: list[tuple[str, str]],
+    agent_memory: dict = {},
+    global_summary: list = [],
 ):
-
+    memory = agent_memory.get(personality_name, {})
+    summary = global_summary[-2:] if len(global_summary) > 2 else global_summary
     answers_text = "\n\n".join(
         [
             f"{r['agent']}: {r['answer']}"
@@ -30,15 +33,14 @@ async def ask_vote(
     )
     for attempt in range(3):
         try:
-            user_prompt = (
-                user_prompt
-            ) = f"""You are competing in a game where the worst answer gets eliminated by vote.
+            user_prompt = f"""You are competing in a game where the worst answer gets eliminated by vote.
 
 The question was: '{question}'
 
 Other agents' answers:
 {answers_text}
-
+your memory throughout the game  {memory}
+global summary of the game for the past two rounds: {summary}
 Agents who spoke privately this round: {conversations}
 
 Vote for the agent with the worst answer. Consider who is a threat to you.
@@ -69,13 +71,15 @@ async def ask_all_votes(
     all_answers: list[dict[str, str]],
     conversations: list[tuple[str, str]],
     active_agents=None,
+    agent_memory: dict = {},
+    global_summary: list = [],
 ):
     agents = active_agents or list(PERSONALITIES.keys())
     semaphore = asyncio.Semaphore(3)
 
     async def ask_with_semaphore(agent):
         async with semaphore:
-            return await ask_vote(agent, question, all_answers, conversations)
+            return await ask_vote(agent, question, all_answers, conversations, agent_memory, global_summary)
 
     tasks = [ask_with_semaphore(name) for name in agents]
     return await asyncio.gather(*tasks)

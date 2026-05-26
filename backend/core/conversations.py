@@ -1,3 +1,5 @@
+from multiprocessing import context
+
 from backend.data.personalities import PERSONALITIES
 import asyncio
 from ollama import AsyncClient
@@ -105,25 +107,35 @@ async def conduct_conversation(agent_a, agent_b, context):
                     raise
 
     # Agent A opens the conversation
+    memory_a = context.get("agent_memory", {}).get(agent_a, {})
+    summary = context.get("global_summary", [])[-2:]
+
     messages_1 = [
         {"role": "system", "content": system_prompt_a},
         {
             "role": "user",
             "content": f"""You are in Round {context['round_number']} of the AI Hunger Games.
-                        The question was: '{context['question']}'
-                        You have chosen to speak privately with {agent_b} before voting.
-                        Use this conversation strategically — discuss answers, form alliances, or probe threats.
-                        Keep it brief and in character.""",
+        The question was: '{context['question']}'
+        Your memory: {memory_a}
+        Recent game history: {summary}
+        You have chosen to speak privately with {agent_b} before voting.
+        Use this conversation strategically — discuss answers, form alliances, or probe threats.
+        Keep it brief and in character.""",
         },
     ]
     message_1 = await chat_with_retry(messages_1)
 
     # Agent B replies to A
+    memory_b = context.get("agent_memory", {}).get(agent_b, {})
+
     messages_2 = [
         {"role": "system", "content": system_prompt_b},
         {
             "role": "user",
-            "content": f"{agent_a} wants to talk to you privately. They said:",
+            "content": f"""{agent_a} wants to talk to you privately.
+    Your memory: {memory_b}
+    Recent game history: {summary}
+    They said:""",
         },
         {"role": "assistant", "content": message_1.message.content},
         {"role": "user", "content": f"Reply to {agent_a}."},
