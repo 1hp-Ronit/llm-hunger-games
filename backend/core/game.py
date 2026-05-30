@@ -1,12 +1,10 @@
-import random
-
 from backend.core.conversations import (
     ask_all_conversations_request,
     conduct_all_conversations,
     match_pairs,
     parse_conversation_request,
 )
-from backend.core.voting import ask_all_votes, find_eliminated_agent, parse_vote
+from backend.core.voting import ask_all_votes, find_eliminated_agent, jury_vote, parse_vote
 from backend.data.questions import QUESTIONS
 from backend.data.personalities import PERSONALITIES
 from backend.core.database import (
@@ -67,9 +65,11 @@ async def run_game(game_id: int):
         for name in active_agents
     }
 
+    eliminated_agents = []
+
     while len(active_agents) > 1:
         if round_number > len(QUESTIONS):
-            break  
+            break
         # 1. Pick a question for this round
         question = QUESTIONS[round_number - 1]
         # 2. Ask all active agents the question and get their answers
@@ -115,17 +115,21 @@ async def run_game(game_id: int):
             global_summary,
         )
         eliminated_agent, is_tie = find_eliminated_agent(raw_votes)
-        # print(
-        #     f"Round {round_number}: eliminated={eliminated_agent}, is_tie={is_tie}, active={active_agents}"
-        # )
+        print(
+            f"Round {round_number}: eliminated={eliminated_agent}, is_tie={is_tie}, active={active_agents}"
+        )
         if is_tie:
-            if len(active_agents) == 2:
-                eliminated_agent = random.choice(active_agents)
-                active_agents.remove(eliminated_agent)
-            else:
-                pass  # jury vote later
+            eliminated_agent, is_tie = await jury_vote(
+             question, answers, active_agents, eliminated_agents, agent_memory, global_summary
+            )
+            print(f"Jury result: eliminated={eliminated_agent}, is_tie={is_tie}")  
+            if is_tie or eliminated_agent is None:
+                break  # jury also tied, end game with no winner
+            active_agents.remove(eliminated_agent)
+            eliminated_agents.append(eliminated_agent)
         else:
             active_agents.remove(eliminated_agent)
+            eliminated_agents.append(eliminated_agent)
         # 6. Update personal and global summary
         update_memories(
             round_number,
@@ -148,6 +152,6 @@ async def run_game(game_id: int):
         save_votes(round_id, parsed_for_db)
 
         round_number += 1
-    winner = active_agents[0]
+    winner = active_agents[0] if len(active_agents) == 1 else None
     finish_game(game_id, winner)
     return winner
