@@ -119,7 +119,7 @@ async def run_game(game_id: int):
             f"Round {round_number}: eliminated={eliminated_agent}, is_tie={is_tie}, active={active_agents}"
         )
         if is_tie:
-            eliminated_agent, is_tie = await jury_vote(
+            eliminated_agent, is_tie, raw_jury_votes = await jury_vote(
              question, answers, active_agents, eliminated_agents, agent_memory, global_summary
             )
             print(f"Jury result: eliminated={eliminated_agent}, is_tie={is_tie}")  
@@ -127,6 +127,16 @@ async def run_game(game_id: int):
                 break  # jury also tied, end game with no winner
             active_agents.remove(eliminated_agent)
             eliminated_agents.append(eliminated_agent)
+            # Save jury votes to the database
+            parsed_jury_votes = [
+                {
+                    "voter": v["voter"],
+                    "voted_for": (parse_vote(v["raw"]) or {}).get("vote"),
+                    "reason": (parse_vote(v["raw"]) or {}).get("reason"),
+                }
+                for v in raw_jury_votes
+            ]
+            save_votes(round_id, parsed_jury_votes,is_jury=True)
         else:
             active_agents.remove(eliminated_agent)
             eliminated_agents.append(eliminated_agent)

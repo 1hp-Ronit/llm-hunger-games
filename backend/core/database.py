@@ -88,12 +88,12 @@ def save_answers(round_id, answers):
     conn.commit()
     conn.close()
 
-def save_votes(round_id, votes):
+def save_votes(round_id, votes, is_jury=False):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.executemany(
-        "INSERT INTO votes (round_id, voter, voted_for, reason) VALUES (?, ?, ?, ?)",
-        [(round_id, v["voter"], v["voted_for"], v["reason"]) for v in votes]
+        "INSERT INTO votes (round_id, voter, voted_for, reason, is_jury) VALUES (?, ?, ?, ?, ?)",
+        [(round_id, v["voter"], v["voted_for"], v["reason"], int(is_jury)) for v in votes]
     )
     conn.commit()
     conn.close()

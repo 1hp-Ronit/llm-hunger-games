@@ -131,7 +131,8 @@ async def jury_vote(
             return await ask_vote(agent, question, answers, [], agent_memory, global_summary, is_jury=True, active_agents=active_agents)
     tasks = [ask_jury(name) for name in agents]
     raw_votes = await asyncio.gather(*tasks)
-    return find_eliminated_agent(raw_votes)
+    eliminated_agent, is_tie = find_eliminated_agent(raw_votes)
+    return (eliminated_agent, is_tie, raw_votes)
 
 
 def find_eliminated_agent(votes: list[dict[str, str]]) -> tuple[str, bool]:
