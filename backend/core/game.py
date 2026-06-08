@@ -103,7 +103,6 @@ async def run_game(game_id: int):
             round_id, matched_pairs, context
         )
 
-        conversations = []
 
         # 5. Conduct voting among agents to eliminate one agent
         raw_votes = await ask_all_votes(
