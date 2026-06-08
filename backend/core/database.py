@@ -40,7 +40,8 @@ def init_db():
             round_id INTEGER REFERENCES rounds(id),
             voter TEXT,
             voted_for TEXT,
-            reason TEXT
+            reason TEXT,
+            is_jury INTEGER DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS conversations (
