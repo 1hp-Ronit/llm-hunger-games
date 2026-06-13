@@ -4,6 +4,33 @@ import os
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "game.db")
 
 # Establishes a connection to the SQLite database and initializes the necessary tables for storing game state, rounds, answers, votes, and conversations.
+
+def get_game(game_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    rounds = cursor.execute("SELECT * FROM rounds WHERE game_id=?", (game_id,)).fetchall()
+    result = []
+    for r in rounds:
+        answers = cursor.execute("SELECT * FROM answers WHERE round_id=?", (r["id"],)).fetchall()
+        votes = cursor.execute("SELECT * FROM votes WHERE round_id=?", (r["id"],)).fetchall()
+        conversations = cursor.execute("SELECT * FROM conversations WHERE round_id=?", (r["id"],)).fetchall()
+        result.append({
+            "round": dict(r),
+            "answers": [dict(a) for a in answers],
+            "votes": [dict(v) for v in votes],
+            "conversations": [dict(c) for c in conversations]
+        })
+    conn.close()
+    return result
+
+def get_all_games():
+    conn = get_connection()
+    cursor = conn.cursor()
+    games = cursor.execute("SELECT * FROM games").fetchall()
+    conn.close()
+    return [dict(g) for g in games]
+
+
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
