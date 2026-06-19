@@ -1,0 +1,125 @@
+[33mcommit 4586849f0ea77f5b6a058f02fafa6f671c09bbea[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mflutter-frontend[m[33m, [m[1;31morigin/flutter-frontend[m[33m)[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Sat Jun 13 15:56:40 2026 +0530
+
+    Update personalities and questions for better game dynamics
+
+[33mcommit a8cfd857a8703c624044af01b4b89f89807fd075[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Sat Jun 13 15:51:47 2026 +0530
+
+    Add Flutter project and update gitignore
+
+[33mcommit 548caa5e12551ccbdb6625bfaf3984123133c67b[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Sat Jun 13 15:37:55 2026 +0530
+
+    Add FastAPI wrapper with WebSocket streaming
+
+[33mcommit 5adba816c19d499808a34383380625d84f20d262[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Mon Jun 8 10:41:24 2026 +0530
+
+    Remove pycache and add gitignore
+
+[33mcommit 7d21a488df1a656c28796ad30ee14d9139f2ebe5[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Mon Jun 8 10:39:00 2026 +0530
+
+    Remove pycache and add gitignore
+
+[33mcommit 4019dd6de1f2a4fea743b6a3d765bd0aef12374d[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Mon Jun 8 10:37:20 2026 +0530
+
+    Update conversations
+
+[33mcommit ee0cf12ddbec5d0f6c9127ea8901a86525384275[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Mon Jun 8 10:35:45 2026 +0530
+
+    Enable conversations and complete core game engine
+
+[33mcommit 1a5c2df8683a15f2e4ce25629f4ed75a6ea9d278[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Sat May 30 20:39:47 2026 +0530
+
+    Add Jury votes to DB
+
+[33mcommit bbc3fb5a214f5675ab426efda395c7d64d7e3fc9[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Sat May 30 20:23:28 2026 +0530
+
+    Add Jury based Tie breaking
+
+[33mcommit 1564af775a3a64108ad4a4d37027c260da9bd776[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Tue May 26 16:23:30 2026 +0530
+
+    Remove Debug prints and add script to show database contents
+
+[33mcommit bacfe4dbfebb1c7c5611579095fd97928130603c[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Tue May 26 16:14:30 2026 +0530
+
+    Run game loop in main and remove conversations during testing to save up tokens
+
+[33mcommit f26e6578aac667671081ab1817053868230b9d62[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Tue May 26 15:32:27 2026 +0530
+
+    Add global summary and agent memory to prompts
+
+[33mcommit 6da885b2fa60f75816be155ff77255d248d09800[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Sun May 24 15:29:27 2026 +0530
+
+    fix: Add conversation transcripts for voting to accomodate private conversations
+
+[33mcommit 3697f26ad432fa40d00ee3ef8bec5fe8cdf3d76e[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Sun May 24 14:43:26 2026 +0530
+
+    Update backend.core.game to instantiate a private conversation loop
+
+[33mcommit 5e570cbf7ebc8e549a9d63fe2aa337d535df0544[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Sun May 24 14:23:49 2026 +0530
+
+    feat: Conduct Conversations between all matches pairs
+
+[33mcommit e29cb1a07ed4a3aedaec4e0b4c545449e7edec09[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Sun May 24 13:39:06 2026 +0530
+
+    Add Async methods for choosing assistant to have private conversation with
+
+[33mcommit ec83b5e08034a2e97a430a8e931ababfacc60dae[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Fri May 22 13:21:39 2026 +0530
+
+    Add README.md
+
+[33mcommit 5801bdf0c4f43e487e2f158db53c61e546b02716[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Fri May 22 13:11:03 2026 +0530
+
+    Add voting logic and elimination cycle
+
+[33mcommit bf27e39616dd0102fd8fb23ba5d2d865ff28b42c[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Wed May 20 15:36:40 2026 +0530
+
+    Add methods to save data into different tables after each round
+
+[33mcommit a226c2d12f436396794520e7f326b992f44f923b[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Wed May 20 15:22:43 2026 +0530
+
+    Add sqlite3 for persistent data storage
+
+[33mcommit 6c3287841dbf787d434c18c555f38b79a9c75d30[m
+Author: Ronit <kumarronitnov26@gmail.com>
+Date:   Wed May 20 15:04:11 2026 +0530
+
+    Initialize semaphore Async clients with rate limiting 429 exponential fallback handling
