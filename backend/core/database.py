@@ -5,6 +5,85 @@ DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "game.db")
 
 # Establishes a connection to the SQLite database and initializes the necessary tables for storing game state, rounds, answers, votes, and conversations.
 
+def get_analytics_summary():
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    total_games = cursor.execute(
+        "SELECT COUNT(*) as count FROM games WHERE status='finished'"
+    ).fetchone()["count"]
+    
+    most_frequent_winner = cursor.execute(
+        "SELECT winner, COUNT(*) as count FROM games WHERE winner IS NOT NULL "
+        "GROUP BY winner ORDER BY count DESC LIMIT 1"
+    ).fetchone()
+    
+    avg_rounds = cursor.execute(
+        "SELECT AVG(round_count) as avg FROM "
+        "(SELECT game_id, COUNT(*) as round_count FROM rounds GROUP BY game_id)"
+    ).fetchone()["avg"]
+    
+    conn.close()
+    return {
+        "total_games": total_games,
+        "most_frequent_winner": dict(most_frequent_winner) if most_frequent_winner else None,
+        "avg_rounds": round(avg_rounds, 1) if avg_rounds else 0,
+    }
+
+
+def get_win_counts():
+    conn = get_connection()
+    cursor = conn.cursor()
+    rows = cursor.execute(
+        "SELECT winner, COUNT(*) as count FROM games "
+        "WHERE winner IS NOT NULL GROUP BY winner ORDER BY count DESC"
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_elimination_rounds():
+    conn = get_connection()
+    cursor = conn.cursor()
+    # Find which round each agent was eliminated in by finding
+    # the last round they appeared in answers but not in the next round
+    rows = cursor.execute("""
+        SELECT a.agent, AVG(r.round_number) as avg_elimination_round
+        FROM answers a
+        JOIN rounds r ON a.round_id = r.id
+        JOIN games g ON r.game_id = g.id
+        WHERE g.status = 'finished'
+        GROUP BY a.agent
+        ORDER BY avg_elimination_round DESC
+    """).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_vote_distribution():
+    conn = get_connection()
+    cursor = conn.cursor()
+    rows = cursor.execute(
+        "SELECT voted_for, COUNT(*) as count FROM votes "
+        "WHERE voted_for IS NOT NULL AND is_jury = 0 "
+        "GROUP BY voted_for ORDER BY count DESC"
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_coalition_data():
+    conn = get_connection()
+    cursor = conn.cursor()
+    rows = cursor.execute(
+        "SELECT voter, voted_for, COUNT(*) as count FROM votes "
+        "WHERE voted_for IS NOT NULL AND is_jury = 0 "
+        "GROUP BY voter, voted_for ORDER BY voter"
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
 def get_game(game_id):
     conn = get_connection()
     cursor = conn.cursor()

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/analytics_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -108,8 +109,12 @@ class _MainScreenState extends State<MainScreen> {
       body: Column(
         children: [
           // Top bar
-          Padding(
+          Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            decoration: const BoxDecoration(
+              color: Color(0xFF0D1117),
+              border: Border(bottom: BorderSide(color: Color(0xFF30363D))),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -121,7 +126,10 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AnalyticsScreen()),
+                  ),
                   child: Text(
                     "Analytics",
                     style: GoogleFonts.jersey10(
@@ -155,7 +163,7 @@ class _MainScreenState extends State<MainScreen> {
                         ElevatedButton(
                           onPressed: gameRunning ? null : startGame,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF5C2D0E),
+                            backgroundColor: const Color(0xFF0D1117),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 40,
                               vertical: 16,
