@@ -1,18 +1,25 @@
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
 
-class WebSocketService{
+class WebSocketService {
   WebSocketChannel? _channel;
 
-
   // Stream that exposes the incoming messages as parsed maps
-  Stream<Map<String, dynamic>> connect(int gameId){
-    _channel = WebSocketChannel.connect(Uri.parse('ws://localhost:8080/ws/game/$gameId'));
+  Stream<Map<String, dynamic>> connect(int gameId) {
+    _channel = WebSocketChannel.connect(
+      Uri.parse('ws://localhost:8000/game/$gameId/stream'),
+    );
 
-    return _channel!.stream.map((message) => jsonDecode(message) as Map<String, dynamic>);
+    return _channel!.stream
+        .map((message) {
+          return jsonDecode(message) as Map<String, dynamic>;
+        })
+        .handleError((error) {
+          print('WebSocket error: $error');
+        });
   }
-  void disconnect(){
+
+  void disconnect() {
     _channel?.sink.close();
   }
-
 }

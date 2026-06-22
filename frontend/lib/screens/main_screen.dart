@@ -18,8 +18,14 @@ class _MainScreenState extends State<MainScreen> {
   final WebSocketService _wsService = WebSocketService();
 
   List<String> activeAgents = [
-    "Analyst", "Poet", "Engineer", "Philosopher",
-    "Pragmatist", "Contrarian", "Optimist", "Minimalist"
+    "Analyst",
+    "Poet",
+    "Engineer",
+    "Philosopher",
+    "Pragmatist",
+    "Contrarian",
+    "Optimist",
+    "Minimalist",
   ];
   List<String> eliminatedAgents = [];
   List<Map<String, dynamic>> battleLogEvents = [];
@@ -53,23 +59,40 @@ class _MainScreenState extends State<MainScreen> {
       currentQuestion = "Game starting...";
     });
 
-    _wsService.connect(currentGameId!).listen((event) {
-      if (event['event'] == 'game_over') {
-        setState(() {
-          gameRunning = false;
-          currentQuestion = "Winner: ${event['winner'] ?? 'No winner'}";
-        });
-        return;
-      }
-      setState(() {
-        currentQuestion = event['question'];
-        if (event['eliminated'] != null) {
-          activeAgents.remove(event['eliminated']);
-          eliminatedAgents.add(event['eliminated']);
-        }
-        battleLogEvents.insert(0, event);
-      });
-    });
+    _wsService
+        .connect(currentGameId!)
+        .listen(
+          (event) {
+            if (event['event'] == 'game_over') {
+              setState(() {
+                gameRunning = false;
+                currentQuestion = "Winner: ${event['winner'] ?? 'No winner'}";
+              });
+              return;
+            }
+            if (event['event'] == 'round_start') {
+              setState(() {
+                currentQuestion = event['question'];
+              });
+              return;
+            }
+
+            setState(() {
+              currentQuestion = event['question'];
+              if (event['eliminated'] != null) {
+                activeAgents.remove(event['eliminated']);
+                eliminatedAgents.add(event['eliminated']);
+              }
+              battleLogEvents.insert(0, event);
+            });
+          },
+          onError: (error) {
+            print('Stream error: $error');
+          },
+          onDone: () {
+            print('WebSocket closed');
+          },
+        );
   }
 
   @override
@@ -157,9 +180,7 @@ class _MainScreenState extends State<MainScreen> {
                     width: 220,
                     child: Column(
                       children: [
-                        Expanded(
-                          child: BattleLog(events: battleLogEvents),
-                        ),
+                        Expanded(child: BattleLog(events: battleLogEvents)),
                         const SizedBox(height: 8),
                         Expanded(
                           child: EliminatedPanel(

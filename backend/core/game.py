@@ -60,10 +60,7 @@ def update_memories(
     del agent_memory[eliminated_agent]
 
 
-
-
-
-async def run_game(game_id: int, on_round_complete=None):
+async def run_game(game_id: int, on_round_complete=None, on_round_start=None):
     active_agents = list(PERSONALITIES.keys())
     round_number = 1
 
@@ -80,6 +77,15 @@ async def run_game(game_id: int, on_round_complete=None):
             break
         # 1. Pick a question for this round
         question = QUESTIONS[round_number - 1]
+        if on_round_start:
+            await on_round_start(
+                {
+                    "event": "round_start",
+                    "round": round_number,
+                    "question": question,
+                    "active_agents": active_agents,
+                }
+            )
         # 2. Ask all active agents the question and get their answers
         answers = await ask_all_agents(question, active_agents)
         # 3. Save the question and answers to the database
@@ -124,6 +130,7 @@ async def run_game(game_id: int, on_round_complete=None):
         print(
             f"Round {round_number}: eliminated={eliminated_agent}, is_tie={is_tie}, active={active_agents}"
         )
+        jury_votes_for_event = []
         if is_tie:
             eliminated_agent, is_tie, raw_jury_votes = await jury_vote(
                 question,
@@ -148,6 +155,7 @@ async def run_game(game_id: int, on_round_complete=None):
                 for v in raw_jury_votes
             ]
             save_votes(round_id, parsed_jury_votes, is_jury=True)
+            jury_votes_for_event = parsed_jury_votes
         else:
             active_agents.remove(eliminated_agent)
             eliminated_agents.append(eliminated_agent)
@@ -173,14 +181,18 @@ async def run_game(game_id: int, on_round_complete=None):
         save_votes(round_id, parsed_for_db)
 
         if on_round_complete:
-            await on_round_complete({
-                "round": round_number,
-                "question": question,
-                "answers": answers,
-                "conversations": conversations,
-                "votes": parsed_for_db,
-                "eliminated": eliminated_agent,
-        })
+            await on_round_complete(
+                {
+                    "round": round_number,
+                    "question": question,
+                    "answers": answers,
+                    "conversations": conversations,
+                    "votes": parsed_for_db,
+                    "eliminated": eliminated_agent,
+                    "was_tie": len(jury_votes_for_event) > 0,
+                    "jury_votes": jury_votes_for_event,
+                }
+            )
 
         round_number += 1
     winner = active_agents[0] if len(active_agents) == 1 else None

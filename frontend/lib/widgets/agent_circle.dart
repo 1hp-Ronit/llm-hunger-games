@@ -18,7 +18,10 @@ class AgentCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final center = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+        final center = Offset(
+          constraints.maxWidth / 2,
+          constraints.maxHeight / 2,
+        );
         final radius = min(constraints.maxWidth, constraints.maxHeight) * 0.38;
 
         return Stack(
@@ -28,16 +31,18 @@ class AgentCircle extends StatelessWidget {
               child: CustomPaint(painter: _CirclePainter(center, radius)),
             ),
             // Question in center
-            Positioned(
-              left: center.dx - 100,
-              top: center.dy - 40,
-              width: 200,
-              child: Text(
-                currentQuestion,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.jersey10(
-                  color: Colors.white,
-                  fontSize: 16,
+            Positioned.fill(
+              child: Center(
+                child: SizedBox(
+                  width: 200,
+                  child: Text(
+                    currentQuestion,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.jersey10(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -88,10 +93,7 @@ class _AgentAvatar extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           name,
-          style: GoogleFonts.jersey10(
-            color: Colors.white70,
-            fontSize: 10,
-          ),
+          style: GoogleFonts.jersey10(color: Colors.white70, fontSize: 10),
         ),
       ],
     );

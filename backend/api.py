@@ -4,13 +4,20 @@ from backend.core.game import run_game
 from contextlib import asynccontextmanager
 import json
 from backend.core.database import get_all_games, get_game
-
+from fastapi.middleware.cors import CORSMiddleware
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/game/start")
 async def start():
@@ -19,13 +26,16 @@ async def start():
 
 
 @app.websocket("/game/{game_id}/stream")
-async def game_stream(websocket : WebSocket, game_id : int):
+async def game_stream(websocket: WebSocket, game_id: int):
     await websocket.accept()
-    
+
+    async def on_round_start(data: dict):
+        await websocket.send_text(json.dumps(data))
+
     async def on_round_complete(data: dict):
         await websocket.send_text(json.dumps(data))
-        
-    winner = await run_game(game_id, on_round_complete)
+
+    winner = await run_game(game_id, on_round_complete, on_round_start)
     await websocket.send_text(json.dumps({"event": "game_over", "winner": winner}))
     await websocket.close()
     
