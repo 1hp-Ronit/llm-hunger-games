@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/table_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
@@ -76,8 +77,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             _StatCard(
                               icon: "🏆",
                               title: "MOST WINS",
-                              value: summary?['most_frequent_winner']?['winner'] ?? "N/A",
-                              subtitle: "${summary?['most_frequent_winner']?['count'] ?? 0} wins",
+                              value:
+                                  summary?['most_frequent_winner']?['winner'] ??
+                                  "N/A",
+                              subtitle:
+                                  "${summary?['most_frequent_winner']?['count'] ?? 0} wins",
                             ),
                             const SizedBox(width: 12),
                             _StatCard(
@@ -95,7 +99,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             Expanded(
                               child: _ChartCard(
                                 title: "Win Count",
-                                subtitle: "Wins per personality across all games",
+                                subtitle:
+                                    "Wins per personality across all games",
                                 child: SizedBox(
                                   height: 200,
                                   child: _BarChart(
@@ -129,7 +134,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         // Full width survival chart
                         _ChartCard(
                           title: "Avg Round Survived",
-                          subtitle: "Higher = eliminated later = stronger performer",
+                          subtitle:
+                              "Higher = eliminated later = stronger performer",
                           child: SizedBox(
                             height: 200,
                             child: _BarChart(
@@ -161,23 +167,62 @@ class _TopBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("AI HUNGER GAMES",
-              style: GoogleFonts.jersey10(color: _textPrimary, fontSize: 22)),
+          Text(
+            "AI HUNGER GAMES",
+            style: GoogleFonts.jersey10(color: _textPrimary, fontSize: 22),
+          ),
           Row(
             children: [
-              Text("Analytics",
-                  style: GoogleFonts.jersey10(color: _textSecondary, fontSize: 16)),
+              Text(
+                "Analytics",
+                style: GoogleFonts.jersey10(
+                  color: _textSecondary,
+                  fontSize: 16,
+                ),
+              ),
               const SizedBox(width: 16),
               GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TableScreen()),
+                ),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: _border),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text("← Back",
-                      style: GoogleFonts.jersey10(color: _textPrimary, fontSize: 14)),
+                  child: Text(
+                    "Data Explorer",
+                    style: GoogleFonts.jersey10(
+                      color: _textPrimary,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: _border),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    "← Back",
+                    style: GoogleFonts.jersey10(
+                      color: _textPrimary,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -218,19 +263,28 @@ class _StatCard extends StatelessWidget {
               children: [
                 Text(icon, style: const TextStyle(fontSize: 16)),
                 const SizedBox(width: 8),
-                Text(title,
-                    style: GoogleFonts.jersey10(
-                        color: _textSecondary, fontSize: 11)),
+                Text(
+                  title,
+                  style: GoogleFonts.jersey10(
+                    color: _textSecondary,
+                    fontSize: 11,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(value,
-                style: GoogleFonts.jersey10(
-                    color: _textPrimary, fontSize: 28)),
+            Text(
+              value,
+              style: GoogleFonts.jersey10(color: _textPrimary, fontSize: 28),
+            ),
             if (subtitle != null)
-              Text(subtitle!,
-                  style: GoogleFonts.jersey10(
-                      color: _textSecondary, fontSize: 11)),
+              Text(
+                subtitle!,
+                style: GoogleFonts.jersey10(
+                  color: _textSecondary,
+                  fontSize: 11,
+                ),
+              ),
           ],
         ),
       ),
@@ -261,10 +315,14 @@ class _ChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: GoogleFonts.jersey10(color: _textPrimary, fontSize: 16)),
-          Text(subtitle,
-              style: GoogleFonts.jersey10(color: _textSecondary, fontSize: 11)),
+          Text(
+            title,
+            style: GoogleFonts.jersey10(color: _textPrimary, fontSize: 16),
+          ),
+          Text(
+            subtitle,
+            style: GoogleFonts.jersey10(color: _textSecondary, fontSize: 11),
+          ),
           const SizedBox(height: 16),
           child,
         ],
@@ -290,8 +348,11 @@ class _BarChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (data.isEmpty) {
       return Center(
-          child: Text("No data",
-              style: GoogleFonts.jersey10(color: _textSecondary)));
+        child: Text(
+          "No data",
+          style: GoogleFonts.jersey10(color: _textSecondary),
+        ),
+      );
     }
 
     return BarChart(
@@ -301,18 +362,19 @@ class _BarChart extends StatelessWidget {
         gridData: FlGridData(
           show: true,
           drawVerticalLine: false,
-          getDrawingHorizontalLine: (_) => FlLine(
-            color: _border,
-            strokeWidth: 1,
-          ),
+          getDrawingHorizontalLine: (_) =>
+              FlLine(color: _border, strokeWidth: 1),
         ),
         titlesData: FlTitlesData(
           leftTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false)),
+            sideTitles: SideTitles(showTitles: false),
+          ),
           rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false)),
+            sideTitles: SideTitles(showTitles: false),
+          ),
           topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false)),
+            sideTitles: SideTitles(showTitles: false),
+          ),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -324,7 +386,9 @@ class _BarChart extends StatelessWidget {
                   child: Text(
                     data[index][labelKey],
                     style: GoogleFonts.jersey10(
-                        color: _textSecondary, fontSize: 9),
+                      color: _textSecondary,
+                      fontSize: 9,
+                    ),
                   ),
                 );
               },

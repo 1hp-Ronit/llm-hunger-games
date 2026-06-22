@@ -16,7 +16,7 @@ class EliminatedPanel extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFF3D1F0D),
+        color: const Color(0xFF161B22),
         borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.all(12),

@@ -17,7 +17,7 @@ class _BattleLogState extends State<BattleLog> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF3D1F0D),
+        color: const Color(0xFF161B22),
         borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.all(12),
@@ -90,7 +90,7 @@ class _RoundEntry extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 6),
         decoration: BoxDecoration(
-          color: const Color(0xFF5C2D0E),
+          color: const Color(0xFF161B22),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(

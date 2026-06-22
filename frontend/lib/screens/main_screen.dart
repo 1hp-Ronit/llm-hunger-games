@@ -105,7 +105,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2C1A0E),
+      backgroundColor: const Color(0xFF0D1117),
       body: Column(
         children: [
           // Top bar
@@ -163,7 +163,7 @@ class _MainScreenState extends State<MainScreen> {
                         ElevatedButton(
                           onPressed: gameRunning ? null : startGame,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0D1117),
+                            backgroundColor: const Color(0xFF161B22),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 40,
                               vertical: 16,

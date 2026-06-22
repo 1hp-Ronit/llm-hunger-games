@@ -82,7 +82,7 @@ class _AgentAvatar extends StatelessWidget {
           width: 60,
           height: 60,
           decoration: BoxDecoration(
-            color: const Color(0xFF5C2D0E),
+            color: const Color(0xFF161B22),
             borderRadius: BorderRadius.circular(30),
             border: Border.all(color: Colors.white24),
           ),
