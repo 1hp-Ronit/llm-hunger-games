@@ -121,9 +121,9 @@ async def jury_vote(
     eliminated_agents: list,
     agent_memory: dict,
     global_summary: list,
-) -> tuple[str, bool]:
+) -> tuple[str, bool, list]:
     if not eliminated_agents:
-        return (None, False)
+        return (None, False, [])
     agents = eliminated_agents
     semaphore = asyncio.Semaphore(3)
     async def ask_jury(agent):
